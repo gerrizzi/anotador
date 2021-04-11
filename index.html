@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Abel&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script src="js/main.js"></script>
+</head>
+<body>
+    <div role="main">
+        <div id="conf-panel">
+            <div>
+                <div>
+                    <h3>Configuración</h3>
+                </div>
+                <div>
+                    <div>
+                        <select name="" id="modo">
+                            <option value="1">8 + 8</option>
+                            <option value="2">10 + 10</option>
+                            <option selected value="3">15 + 15</option>
+                            <option value="4">20 + 20</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <button onclick="$('#conf-panel').fadeOut(100);"><span>Cerrar</span></button>
+                    <button onclick="SaveConfiguracion();$('#conf-panel').fadeOut(100);"><span>Aceptar</span></button>
+                </div>
+            </div>
+        </div>
+        <h1 style="color: #f5b971; margin-left: 20px;">Anotador</h1>
+        <div id="tableros" class="d-flex">
+            <div id="jugador-1" class="tablero" jugador="1">
+                <div class="info d-flex align-items-center justify-content-center">
+                    <h2 class="text-center">Nosotros</h2>
+                    <span class="cant-puntos">0</span>
+                </div>
+                <div class="puntos">
+                    <div class="divisor-puntos">
+                    </div>
+                    <div class="divisor-puntos">
+                    </div>
+                    <div class="divisor-puntos">
+                    </div>
+                </div>
+            </div>
+            <hr id="hr-separador-tableros">
+            <div id="jugador-2" class="tablero" jugador="2">
+                <div class="info d-flex align-items-center justify-content-center">
+                    <h2 class="text-center">Ellos</h2>
+                    <span class="cant-puntos">0</span>
+                </div>
+                <div class="puntos">
+                    <div class="divisor-puntos">
+                    </div>
+                    <div class="divisor-puntos">
+                    </div>
+                    <div class="divisor-puntos">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
