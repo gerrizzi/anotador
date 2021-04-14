@@ -6,20 +6,20 @@ const DEFAULT_GAME_CONF = {
         1: {
             nombre: "Nosotros",
             puntos: 0,
-            malas: function() {
+            malas: function () {
                 return this.puntos <= (GetPuntosXModo(modo) / 2);
             },
-            gano: function() {
+            gano: function () {
                 return this.puntos >= GetPuntosXModo(modo);
             }
         },
         2: {
             nombre: "Ellos",
             puntos: 0,
-            malas: function() {
+            malas: function () {
                 return this.puntos <= (GetPuntosXModo(modo) / 2);
             },
-            gano: function() {
+            gano: function () {
                 return this.puntos >= GetPuntosXModo(modo);
             }
         }
@@ -27,7 +27,7 @@ const DEFAULT_GAME_CONF = {
     puntos_x_modo: { 1: 9, 2: 10, 3: 12, 4: 15, 5: 18, 6: 20, 7: 24, 8: 30, 9: 40 }
 };
 
-var CURRENT_GAME_CONF = {...DEFAULT_GAME_CONF};
+var CURRENT_GAME_CONF = { ...DEFAULT_GAME_CONF };
 
 $(document).ready(function () {
     //Creo la bd si no existe
@@ -37,6 +37,10 @@ $(document).ready(function () {
     LoadLastJuego();
 
     console.log("Funcionando...");
+
+    $(".hambuger-menu-icon").click(function () {
+        $(this).toggleClass('change');
+    });
 });
 
 $(document).on("click", ".tablero", function () {
@@ -110,25 +114,25 @@ function GetPuntosXModo(modo) {
 }
 
 function SaveConfiguracion() {
-    CURRENT_GAME_CONF = {...DEFAULT_GAME_CONF};
+    CURRENT_GAME_CONF = { ...DEFAULT_GAME_CONF };
     CURRENT_GAME_CONF.modo = $("#modo").val();
 
     DrawGame(CURRENT_GAME_CONF);
 }
 
-function DrawGame(juego){
+function DrawGame(juego) {
     //Cargo los tableros seguno los puntos de cada jugador
     DrawTablero(1, juego.modo, juego.jugadores["1"].puntos);
     DrawTablero(2, juego.modo, juego.jugadores["2"].puntos);
 }
 
-function DrawTablero(nro_jugador, modo, puntos = 0){
+function DrawTablero(nro_jugador, modo, puntos = 0) {
     DrawTableroDivisores(nro_jugador, modo);
     DrawPoints(nro_jugador, puntos);
     SetCantTableroPuntos(nro_jugador, puntos);
 }
 
-function DrawTableroDivisores(nro_jugador, modo){
+function DrawTableroDivisores(nro_jugador, modo) {
     let tablero_puntos = $("#jugador-" + nro_jugador + " .puntos");
     let html_divisor = "";
     let cant_divisores = parseInt(modo) < 5 ? (GetPuntosXModo(modo) / 5) : (GetPuntosXModo(modo) / 5) / 2;
@@ -139,7 +143,7 @@ function DrawTableroDivisores(nro_jugador, modo){
     tablero_puntos.html(html_divisor);
 }
 
-function DrawPoint(nro_jugador){
+function DrawPoint(nro_jugador) {
     let tablero_jugador = $("#jugador-" + nro_jugador);
     let puntos = tablero_jugador.find(".punto");
     let ultimo_punto = puntos.length == 0 ? null : $(puntos[puntos.length - 1]);
@@ -166,7 +170,7 @@ function DrawPoint(nro_jugador){
         tablero_jugador.find(".divisor-puntos:first").append(html_punto.replace("#NOMBRE_PUNTO#", "punto-arriba"));
 }
 
-function DrawPoints(nro_jugador, puntos){
+function DrawPoints(nro_jugador, puntos) {
     for (let i = 0; i < puntos; i++)
         DrawPoint(nro_jugador);
 }
@@ -174,6 +178,29 @@ function DrawPoints(nro_jugador, puntos){
 function InitDB() {
     db.version(1).stores({
         juegos: '++id,modo,jugador_1_nombre,jugador_1_puntos,jugador_2_nombre,jugador_2_puntos'
+    });
+}
+
+function DrawAllJuegos() {
+    GetAllJuegos().then(function (juegos) {
+        debugger;
+        let html = "<p>No hay juegos para mostrar</p>";
+
+        if (juegos && juegos[0])
+            for (let i = 0; i < juegos.length; i++) {
+                const juego = juegos[i];
+                let puntos_por_modo = GetPuntosXModo(juego.modo);
+                let nro_jugador_ganador = juego.jugador_1_puntos >= puntos_por_modo ? 1 : (juego.jugador_2_puntos >= puntos_por_modo ? 2 : 0); 
+
+                html += `<div>
+                            <span>${nro_jugador_ganador == 0 ? "Sin terminar" : "Ganador: "(juego["jugador_" + nro_jugador_ganador + "_puntos"])}</span>
+                            <span>${juego.jugador_1_nombre + " - " + juego.jugador_1_puntos}</span>
+                            <span>${juego.jugador_2_nombre + " - " + juego.jugador_2_puntos}</span>
+                            <span onclick="GetAndLoadJuego(${juego.id})">Cargar</span>
+                        </div>`;
+            }
+
+        $("#mis-partidas").html(html);
     });
 }
 
@@ -185,36 +212,35 @@ function LoadLastJuego() {
         })
         .then(function (data) {
             debugger;
-            CURRENT_GAME_CONF = {
-                id: data.id,
-                modo: data.modo,
-                jugadores: {
-                    1: {
-                        nombre: data.jugador_1_nombre,
-                        puntos: data.jugador_1_puntos,
-                        malas: function() {
-                            return this.puntos <= (GetPuntosXModo(modo) / 2);
-                        },
-                        gano: function() {
-                            return this.puntos >= GetPuntosXModo(modo);
-                        }
-                    },
-                    2: {
-                        nombre: data.jugador_2_nombre,
-                        puntos: data.jugador_2_puntos,
-                        malas: function() {
-                            return this.puntos <= (GetPuntosXModo(modo) / 2);
-                        },
-                        gano: function() {
-                            return this.puntos >= GetPuntosXModo(modo);
-                        }
-                    }
-                },
-                puntos_x_modo: { 1: 9, 2: 10, 3: 12, 4: 15, 5: 18, 6: 20, 7: 24, 8: 30, 9: 40 }
-            }
+            CURRENT_GAME_CONF = IndexedDbJuegoToJuego(data);
 
             DrawGame(CURRENT_GAME_CONF);
         });
+}
+
+function GetAndLoadJuego(juegoId){
+    GetJuegoById(juegoId).then(function(juego){
+        if(juego){
+            let _juego = IndexedDbJuegoToJuego(juego);
+            DrawGame(_juego);
+        }
+    });
+}
+
+function GetJuegoById(juegoId){
+    return db
+    .open()
+    .then(function () {
+        return db.juegos.get(juegoId);
+    });
+}
+
+function GetAllJuegos() {
+    return db
+           .open()
+           .then(function () {
+               return db.juegos.toArray();
+           });
 }
 
 function AddOrUpdateJuego(juego) {
@@ -223,13 +249,7 @@ function AddOrUpdateJuego(juego) {
     db
         .open()
         .then(function () {
-            let _juego = {
-                modo: juego.modo,
-                jugador_1_nombre: juego.jugadores["1"].nombre,
-                jugador_1_puntos: juego.jugadores["1"].puntos,
-                jugador_2_nombre: juego.jugadores["2"].nombre,
-                jugador_2_puntos: juego.jugadores["2"].puntos
-            };
+            let _juego = JuegoToIndexedDbJuego(juego);
 
             //Si tiene id es un update
             if (isUpdate)
@@ -241,4 +261,61 @@ function AddOrUpdateJuego(juego) {
             if (!isUpdate && code > 0)
                 juego.id = code;
         });
+}
+
+function IndexedDbJuegoToJuego(indexedDbJuego) {
+    return {
+        id: indexedDbJuego.id,
+        modo: indexedDbJuego.modo,
+        jugadores: {
+            1: {
+                nombre: indexedDbJuego.jugador_1_nombre,
+                puntos: indexedDbJuego.jugador_1_puntos,
+                malas: function () {
+                    return this.puntos <= (GetPuntosXModo(modo) / 2);
+                },
+                gano: function () {
+                    return this.puntos >= GetPuntosXModo(modo);
+                }
+            },
+            2: {
+                nombre: indexedDbJuego.jugador_2_nombre,
+                puntos: indexedDbJuego.jugador_2_puntos,
+                malas: function () {
+                    return this.puntos <= (GetPuntosXModo(modo) / 2);
+                },
+                gano: function () {
+                    return this.puntos >= GetPuntosXModo(modo);
+                }
+            }
+        },
+        puntos_x_modo: { 1: 9, 2: 10, 3: 12, 4: 15, 5: 18, 6: 20, 7: 24, 8: 30, 9: 40 }
+    }
+}
+
+function JuegoToIndexedDbJuego(juego) {
+    return {
+        id: juego.id,
+        modo: juego.modo,
+        jugador_1_nombre: juego.jugadores["1"].nombre,
+        jugador_1_puntos: juego.jugadores["1"].puntos,
+        jugador_2_nombre: juego.jugadores["2"].nombre,
+        jugador_2_puntos: juego.jugadores["2"].puntos
+    }
+}
+
+function ShowModal(modalId) {
+    modalId = modalId.indexOf("#") == 0 ? modalId : "#" + modalId;
+    let modal = $(modalId + ".modal");
+
+    if (!modal.is(":visible"))
+        modal.fadeIn(150);
+}
+
+function HideModal(modalId) {
+    modalId = modalId.indexOf("#") == 0 ? modalId : "#" + modalId;
+    let modal = $(modalId + ".modal");
+
+    if (modal.is(":visible"))
+        modal.fadeOut(150);
 }
