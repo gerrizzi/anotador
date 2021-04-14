@@ -1,86 +1,60 @@
-var juego = {
+const db = new Dexie("AnotadorDB");
+
+const DEFAULT_GAME_CONF = {
     modo: 8,
     jugadores: {
         1: {
             nombre: "Nosotros",
             puntos: 0,
-            malas: () => {
-                return juego.jugadores["1"].puntos <= (GetPuntosXModo(modo) / 2);
+            malas: function() {
+                return this.puntos <= (GetPuntosXModo(modo) / 2);
             },
-            gano: () => {
-                return juego.jugadores["1"].puntos >= GetPuntosXModo(modo);
+            gano: function() {
+                return this.puntos >= GetPuntosXModo(modo);
             }
         },
         2: {
             nombre: "Ellos",
             puntos: 0,
-            malas: () => {
-                return juego.jugadores["2"].puntos <= (GetPuntosXModo(modo) / 2);
+            malas: function() {
+                return this.puntos <= (GetPuntosXModo(modo) / 2);
             },
-            gano: () => {
-                return juego.jugadores["2"].puntos >= GetPuntosXModo(modo);
+            gano: function() {
+                return this.puntos >= GetPuntosXModo(modo);
             }
         }
     },
     puntos_x_modo: { 1: 9, 2: 10, 3: 12, 4: 15, 5: 18, 6: 20, 7: 24, 8: 30, 9: 40 }
-}
+};
+
+var CURRENT_GAME_CONF = {...DEFAULT_GAME_CONF};
 
 $(document).ready(function () {
-    $(".tablero").click(function () {
-        let _this = $(this);
-        let nro_jugador = _this.attr("jugador");
+    //Creo la bd si no existe
+    InitDB();
 
-        if (!CheckearSiGanoJugador(nro_jugador)) {
-            AddPunto(nro_jugador);
-        }
-        else {
-            $("#conf-panel").fadeIn(100);
-        }
-    });
+    //Cargo el ultimo juego jugado
+    LoadLastJuego();
 
     console.log("Funcionando...");
 });
 
-function AddPuntos(nro_jugador, puntos) {
-    for (let i = 0; i < puntos; i++)
-        AddPunto(nro_jugador);
-}
+$(document).on("click", ".tablero", function () {
+    let _this = $(this);
+    let nro_jugador = _this.attr("jugador");
 
-function AddPunto(nro_jugador) {
-    let jugador = GetDataJugador(nro_jugador);
+    if (!CheckearSiGanoJugador(nro_jugador)) {
+        IncrementarPuntosJugador(nro_jugador);
+        SetCantTableroPuntos(nro_jugador, GetDataJugador(nro_jugador).puntos);
+        DrawPoint(nro_jugador);
+        RemoveTableroPuntosSiPasoABuenas(nro_jugador);
+    }
+    else {
+        $("#conf-panel").fadeIn(100);
+    }
 
-    IncrementarPuntosJugador(nro_jugador);
-    SetCantTableroPuntos(nro_jugador, jugador.puntos);
-    RemoveTableroPuntosSiPasoABuenas(nro_jugador);
-    AddTableroPunto(nro_jugador);
-}
-
-function AddTableroPunto(nro_jugador) {
-    let tablero_jugador = $("#jugador-" + nro_jugador);
-    let puntos = tablero_jugador.find(".punto");
-    let ultimo_punto = puntos.length == 0 ? null : $(puntos[puntos.length - 1]);
-    let ultimo_punto_nombre = ultimo_punto == null ? "" : ultimo_punto[0].className.match(/punto-[^\s]*/)[0];
-    let es_de_a_5 = GetPuntosXModo(modo) % 5 == 0;
-
-    let html_punto = `<div class="punto #NOMBRE_PUNTO#"></div>`;
-
-    if (ultimo_punto_nombre == "punto-arriba")
-        ultimo_punto.parent().append(html_punto.replace("#NOMBRE_PUNTO#", "punto-derecha"));
-
-    else if (ultimo_punto_nombre == "punto-derecha")
-        ultimo_punto.parent().append(html_punto.replace("#NOMBRE_PUNTO#", "punto-abajo"));
-
-    else if (ultimo_punto_nombre == "punto-abajo")
-        ultimo_punto.parent().append(html_punto.replace("#NOMBRE_PUNTO#", "punto-izquierda"));
-
-    else if (es_de_a_5 && ultimo_punto_nombre == "punto-izquierda")
-        ultimo_punto.parent().append(html_punto.replace("#NOMBRE_PUNTO#", "punto-medio"));
-
-    else if ((!es_de_a_5 && ultimo_punto_nombre == "punto-izquierda") || (ultimo_punto_nombre == "punto-medio"))
-        ultimo_punto.parent().next(".divisor-puntos").append(html_punto.replace("#NOMBRE_PUNTO#", "punto-arriba"));
-    else
-        tablero_jugador.find(".divisor-puntos:first").append(html_punto.replace("#NOMBRE_PUNTO#", "punto-arriba"));
-}
+    AddOrUpdateJuego(CURRENT_GAME_CONF);
+});
 
 function CheckearSiGanoJugador(nro_jugador) {
     return GetDataJugador(nro_jugador).gano();
@@ -128,40 +102,143 @@ function SetCantTableroPuntos(nro_jugador, puntos) {
 }
 
 function GetDataJugador(nro_jugador) {
-    return juego.jugadores[nro_jugador + ""];
+    return CURRENT_GAME_CONF.jugadores[nro_jugador + ""];
 }
 
 function GetPuntosXModo(modo) {
-    return juego.puntos_x_modo[juego.modo + ""];
+    return CURRENT_GAME_CONF.puntos_x_modo[CURRENT_GAME_CONF.modo + ""];
 }
 
 function SaveConfiguracion() {
-    juego.modo = $("#modo").val();
+    CURRENT_GAME_CONF = {...DEFAULT_GAME_CONF};
+    CURRENT_GAME_CONF.modo = $("#modo").val();
 
-    CrearPanel(1, juego.modo);
-    SetPuntosJugador(1, 0);
-    CrearPanel(2, juego.modo);
-    SetPuntosJugador(2, 0);
+    DrawGame(CURRENT_GAME_CONF);
 }
 
-function CrearPanel(nro_jugador, modo) {
+function DrawGame(juego){
+    //Cargo los tableros seguno los puntos de cada jugador
+    DrawTablero(1, juego.modo, juego.jugadores["1"].puntos);
+    DrawTablero(2, juego.modo, juego.jugadores["2"].puntos);
+}
+
+function DrawTablero(nro_jugador, modo, puntos = 0){
+    DrawTableroDivisores(nro_jugador, modo);
+    DrawPoints(nro_jugador, puntos);
+    SetCantTableroPuntos(nro_jugador, puntos);
+}
+
+function DrawTableroDivisores(nro_jugador, modo){
     let tablero_puntos = $("#jugador-" + nro_jugador + " .puntos");
-    let html_divisor = `<div class="divisor-puntos"></div>`;
+    let html_divisor = "";
+    let cant_divisores = parseInt(modo) < 5 ? (GetPuntosXModo(modo) / 5) : (GetPuntosXModo(modo) / 5) / 2;
 
-    switch (modo) {
-        case "1":
-            tablero_puntos.html(html_divisor + html_divisor);
-            break;
-        case "2":
-            tablero_puntos.html(html_divisor + html_divisor);
-            break;
-        case "3":
-            tablero_puntos.html(html_divisor + html_divisor + html_divisor);
-            break;
-        case "4":
-            tablero_puntos.html(html_divisor + html_divisor + html_divisor + html_divisor);
-            break;
-    }
+    for (let i = 0; i < cant_divisores; i++)
+        html_divisor += `<div class="divisor-puntos"></div>`;
 
-    SetCantTableroPuntos(nro_jugador, 0);
+    tablero_puntos.html(html_divisor);
+}
+
+function DrawPoint(nro_jugador){
+    let tablero_jugador = $("#jugador-" + nro_jugador);
+    let puntos = tablero_jugador.find(".punto");
+    let ultimo_punto = puntos.length == 0 ? null : $(puntos[puntos.length - 1]);
+    let ultimo_punto_nombre = ultimo_punto == null ? "" : ultimo_punto[0].className.match(/punto-[^\s]*/)[0];
+    let es_de_a_5 = GetPuntosXModo(modo) % 5 == 0;
+
+    let html_punto = `<div class="punto #NOMBRE_PUNTO#"></div>`;
+
+    if (ultimo_punto_nombre == "punto-arriba")
+        ultimo_punto.parent().append(html_punto.replace("#NOMBRE_PUNTO#", "punto-derecha"));
+
+    else if (ultimo_punto_nombre == "punto-derecha")
+        ultimo_punto.parent().append(html_punto.replace("#NOMBRE_PUNTO#", "punto-abajo"));
+
+    else if (ultimo_punto_nombre == "punto-abajo")
+        ultimo_punto.parent().append(html_punto.replace("#NOMBRE_PUNTO#", "punto-izquierda"));
+
+    else if (es_de_a_5 && ultimo_punto_nombre == "punto-izquierda")
+        ultimo_punto.parent().append(html_punto.replace("#NOMBRE_PUNTO#", "punto-medio"));
+
+    else if ((!es_de_a_5 && ultimo_punto_nombre == "punto-izquierda") || (ultimo_punto_nombre == "punto-medio"))
+        ultimo_punto.parent().next(".divisor-puntos").append(html_punto.replace("#NOMBRE_PUNTO#", "punto-arriba"));
+    else
+        tablero_jugador.find(".divisor-puntos:first").append(html_punto.replace("#NOMBRE_PUNTO#", "punto-arriba"));
+}
+
+function DrawPoints(nro_jugador, puntos){
+    for (let i = 0; i < puntos; i++)
+        DrawPoint(nro_jugador);
+}
+
+function InitDB() {
+    db.version(1).stores({
+        juegos: '++id,modo,jugador_1_nombre,jugador_1_puntos,jugador_2_nombre,jugador_2_puntos'
+    });
+}
+
+function LoadLastJuego() {
+    db
+        .open()
+        .then(function () {
+            return db.juegos.orderBy('id').last();
+        })
+        .then(function (data) {
+            debugger;
+            CURRENT_GAME_CONF = {
+                id: data.id,
+                modo: data.modo,
+                jugadores: {
+                    1: {
+                        nombre: data.jugador_1_nombre,
+                        puntos: data.jugador_1_puntos,
+                        malas: function() {
+                            return this.puntos <= (GetPuntosXModo(modo) / 2);
+                        },
+                        gano: function() {
+                            return this.puntos >= GetPuntosXModo(modo);
+                        }
+                    },
+                    2: {
+                        nombre: data.jugador_2_nombre,
+                        puntos: data.jugador_2_puntos,
+                        malas: function() {
+                            return this.puntos <= (GetPuntosXModo(modo) / 2);
+                        },
+                        gano: function() {
+                            return this.puntos >= GetPuntosXModo(modo);
+                        }
+                    }
+                },
+                puntos_x_modo: { 1: 9, 2: 10, 3: 12, 4: 15, 5: 18, 6: 20, 7: 24, 8: 30, 9: 40 }
+            }
+
+            DrawGame(CURRENT_GAME_CONF);
+        });
+}
+
+function AddOrUpdateJuego(juego) {
+    let isUpdate = juego.hasOwnProperty("id") && juego.id !== undefined && juego.id != null && juego.id > 0;
+
+    db
+        .open()
+        .then(function () {
+            let _juego = {
+                modo: juego.modo,
+                jugador_1_nombre: juego.jugadores["1"].nombre,
+                jugador_1_puntos: juego.jugadores["1"].puntos,
+                jugador_2_nombre: juego.jugadores["2"].nombre,
+                jugador_2_puntos: juego.jugadores["2"].puntos
+            };
+
+            //Si tiene id es un update
+            if (isUpdate)
+                return db.juegos.update(juego.id, _juego);
+            //Si no es un add
+            else
+                return db.juegos.put(_juego);
+        }).then(function (code) {
+            if (!isUpdate && code > 0)
+                juego.id = code;
+        });
 }
