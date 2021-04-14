@@ -15,6 +15,10 @@ body {
     width: 100%;
 }
 
+.w-100 {
+	width: 100%;
+}
+
 .d-flex {
 	display: flex;
 }
@@ -29,6 +33,10 @@ body {
 
 .justify-content-center {
 	justify-content: center;
+}
+
+.justify-content-between {
+	justify-content: space-between;
 }
 
 .text-center {
@@ -123,7 +131,7 @@ body {
   	border-image: linear-gradient(180deg, #ffb860, rgba(255,255,255,0)) 1;
 }
 
-#conf-panel {
+.modal {
 	z-index: 999;
 	display: flex;
 	justify-content: center;
@@ -133,7 +141,7 @@ body {
 	position: absolute;
 }
 
-#conf-panel > div {
+.modal > div {
 	width: max-content;
 	/* background: linear-gradient(45deg, #f7bb61, #f18e9f, #e971bf, #a05495); */
 	background-color: rgb(255 255 255 / 90%);;
@@ -184,6 +192,50 @@ button {
 	border-radius: 100px;
 	font-size: 22px;
 }
+
+.hambuger-menu-icon {
+	display: inline-block;
+	margin: 0 20px;
+	position: relative;
+	cursor: pointer;
+}
+
+.hambuger-menu-icon::before {
+	display: block;
+	content: 'MENU';
+	color: #f7bb61;
+	font-weight: 600;
+	font-size: 28px;
+	position: absolute;
+	left: -80px;
+	top: 2px;
+	cursor: pointer;
+}
+
+.hambuger-menu-icon div {
+	width: 35px;
+	height: 5px;
+	background: linear-gradient(45deg, #f7bb61, #f18e9f, #e971bf, #a05495);
+	border: 1px solid   #f18e9f;
+	margin: 6px 0;
+	transition: 0.4s; 
+}
+
+.hambuger-menu-icon.change div:nth-child(1) {
+	-webkit-transform: rotate(-45deg) translate(-9px, 6px);
+	transform: rotate(-45deg) translate(-9px, 6px);
+  }
+  
+  .hambuger-menu-icon.change div:nth-child(2) {opacity: 0;}
+  
+  .hambuger-menu-icon.change div:nth-child(3) {
+	-webkit-transform: rotate(45deg) translate(-8px, -8px);
+	transform: rotate(45deg) translate(-8px, -8px);
+  }
+  .hambuger-menu-icon.change::before {
+	  content: 'CERRAR';
+	  left: -100px;
+  }
 
 @media only screen and (max-width: 600px) {
 	.punto-arriba {
