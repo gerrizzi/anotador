@@ -13,8 +13,36 @@
     <script src="js/main.js"></script>
 </head>
 <body>
+    <header>
+        <div class="d-flex align-items-center justify-content-between">
+            <h1 style="color: #f5b971; margin-left: 20px;">Anotador</h1>
+            <div onclick="ShowModal('menu');" class="hambuger-menu-icon" style="display: inline-block;">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+              </div>
+        </div>
+    </header>
     <div role="main">
-        <div id="conf-panel">
+        <div id="menu" class="modal" style="display: none;">
+            <div>
+                <div>
+                    <h3>Menu</h3>
+                </div>
+                <div>
+                    <div>
+                        <ul>
+                            <li onclick="DrawAllJuegos();ShowModal('mis-partidas-panel')">Mis partidas</li>
+                            <li onclick="ShowModal('conf-panel')">Configuració</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="w-100 d-flex justify-content-center align-items-center">
+                    <button onclick="HideModal('menu');"><span>Cerrar</span></button>
+                </div>
+            </div>
+        </div>
+        <div id="conf-panel" class="modal" style="display: none;">
             <div>
                 <div>
                     <h3>Configuración</h3>
@@ -35,12 +63,24 @@
                     </div>
                 </div>
                 <div>
-                    <button onclick="$('#conf-panel').fadeOut(100);"><span>Cerrar</span></button>
-                    <button onclick="SaveConfiguracion();$('#conf-panel').fadeOut(100);"><span>Aceptar</span></button>
+                    <button onclick="HideModal('conf-panel');"><span>Cerrar</span></button>
+                    <button onclick="SaveConfiguracion();HideModal('conf-panel');"><span>Aceptar</span></button>
                 </div>
             </div>
         </div>
-        <h1 style="color: #f5b971; margin-left: 20px;">Anotador</h1>
+        <div id="mis-partidas-panel" class="modal" style="display: none;">
+            <div>
+                <div>
+                    <h3>Mis partidas</h3>
+                </div>
+                <div id="mis-partidas">
+                    
+                </div>
+                <div class="w-100 d-flex justify-content-center align-items-center">
+                    <button onclick="HideModal('mis-partidas-panel');"><span>Cerrar</span></button>
+                </div>
+            </div>
+        </div>
         <div id="tableros" class="d-flex">
             <div id="jugador-1" class="tablero" jugador="1">
                 <div class="info d-flex align-items-center justify-content-center">
