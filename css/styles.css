@@ -54,9 +54,9 @@ body {
 
 .tablero {
 	color: #f0f0f0;
-	margin: 20px;
+	margin: 20px 0;
 	padding: 20px;
-	width: 100%;
+	width: 50%;
 	height: 100%;
 	/* background-color: rgba(255,255,255,0.1); */
 	border-radius: 8px;
