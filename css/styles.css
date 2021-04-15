@@ -23,6 +23,10 @@ body {
 	display: flex;
 }
 
+.flex-column {
+	flex-direction: column;
+}
+
 .d-none {
 	display: none;
 }
@@ -238,7 +242,6 @@ button {
   }
   #menu > div {
 	  width: 100%;
-	  position: absolute;
 	  left: 0;
 	  bottom: 0;
 	  height: 90vh;
