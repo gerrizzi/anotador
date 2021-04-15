@@ -25,21 +25,11 @@
     </header>
     <div role="main">
         <div id="menu" class="modal" style="display: none;">
-            <div>
-                <div>
-                    <h3>Menu</h3>
-                </div>
-                <div>
-                    <div>
-                        <ul>
-                            <li onclick="DrawAllJuegos();ShowModal('mis-partidas-panel')">Mis partidas</li>
-                            <li onclick="ShowModal('conf-panel')">Configuració</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="w-100 d-flex justify-content-center align-items-center">
-                    <button onclick="HideModal('menu');"><span>Cerrar</span></button>
-                </div>
+            <div class="d-flex justify-content-center align-items-center">
+                <ul>
+                    <li onclick="HideModal('menu');DrawAllJuegos();ShowModal('mis-partidas-panel')">Mis partidas</li>
+                    <li onclick="HideModal('menu');ShowModal('conf-panel')">Configuración</li>
+                </ul>
             </div>
         </div>
         <div id="conf-panel" class="modal" style="display: none;">
@@ -73,9 +63,19 @@
                 <div>
                     <h3>Mis partidas</h3>
                 </div>
-                <div id="mis-partidas">
-                    
-                </div>
+                <table id="mis-partidas">
+                    <thead>
+                        <tr>
+                            <th>Resultado</th>
+                            <th>Nosotros</th>
+                            <th>Ellos</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
                 <div class="w-100 d-flex justify-content-center align-items-center">
                     <button onclick="HideModal('mis-partidas-panel');"><span>Cerrar</span></button>
                 </div>
