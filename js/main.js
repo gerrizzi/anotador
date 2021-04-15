@@ -184,23 +184,26 @@ function InitDB() {
 function DrawAllJuegos() {
     GetAllJuegos().then(function (juegos) {
         debugger;
-        let html = "<p>No hay juegos para mostrar</p>";
+        let html = "<tr><td colspan='4' style='text-align: center'>No hay juegos para mostrar</td></tr>";
 
         if (juegos && juegos[0])
-            for (let i = 0; i < juegos.length; i++) {
-                const juego = juegos[i];
-                let puntos_por_modo = GetPuntosXModo(juego.modo);
-                let nro_jugador_ganador = juego.jugador_1_puntos >= puntos_por_modo ? 1 : (juego.jugador_2_puntos >= puntos_por_modo ? 2 : 0); 
-
-                html += `<div>
-                            <span>${nro_jugador_ganador == 0 ? "Sin terminar" : "Ganador: "(juego["jugador_" + nro_jugador_ganador + "_puntos"])}</span>
-                            <span>${juego.jugador_1_nombre + " - " + juego.jugador_1_puntos}</span>
-                            <span>${juego.jugador_2_nombre + " - " + juego.jugador_2_puntos}</span>
-                            <span onclick="GetAndLoadJuego(${juego.id})">Cargar</span>
-                        </div>`;
+            {
+                html = "";
+                for (let i = 0; i < juegos.length; i++) {
+                    const juego = juegos[i];
+                    let puntos_por_modo = GetPuntosXModo(juego.modo);
+                    let nro_jugador_ganador = juego.jugador_1_puntos >= puntos_por_modo ? 1 : (juego.jugador_2_puntos >= puntos_por_modo ? 2 : 0); 
+    
+                    html += `<tr>
+                                <td>${nro_jugador_ganador == 0 ? "Sin terminar" : "Ganador: "(juego["jugador_" + nro_jugador_ganador + "_puntos"])}</td>
+                                <td style="text-align: center">${juego.jugador_1_puntos}</td>
+                                <td style="text-align: center">${juego.jugador_2_puntos}</td>
+                                <td onclick="GetAndLoadJuego(${juego.id})">Cargar</td>
+                            </tr>`;
+                }
             }
 
-        $("#mis-partidas").html(html);
+        $("#mis-partidas tbody").html(html);
     });
 }
 
