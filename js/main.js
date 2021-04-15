@@ -183,7 +183,6 @@ function InitDB() {
 
 function DrawAllJuegos() {
     GetAllJuegos().then(function (juegos) {
-        debugger;
         let html = "<tr><td colspan='4' style='text-align: center'>No hay juegos para mostrar</td></tr>";
 
         if (juegos && juegos[0])
@@ -214,7 +213,6 @@ function LoadLastJuego() {
             return db.juegos.orderBy('id').last();
         })
         .then(function (data) {
-            debugger;
             CURRENT_GAME_CONF = IndexedDbJuegoToJuego(data);
 
             DrawGame(CURRENT_GAME_CONF);
