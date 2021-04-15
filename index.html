@@ -16,7 +16,7 @@
     <header>
         <div class="d-flex align-items-center justify-content-between">
             <h1 style="color: #f5b971; margin-left: 20px;">Anotador</h1>
-            <div onclick="ShowModal('menu');" class="hambuger-menu-icon" style="display: inline-block;">
+            <div onclick="HideAllModals();ShowModal('menu');" class="hambuger-menu-icon" style="display: inline-block;">
                 <div class="bar1"></div>
                 <div class="bar2"></div>
                 <div class="bar3"></div>
@@ -25,11 +25,16 @@
     </header>
     <div role="main">
         <div id="menu" class="modal" style="display: none;">
-            <div class="d-flex justify-content-center align-items-center">
-                <ul>
-                    <li onclick="HideModal('menu');DrawAllJuegos();ShowModal('mis-partidas-panel')">Mis partidas</li>
-                    <li onclick="HideModal('menu');ShowModal('conf-panel')">Configuración</li>
-                </ul>
+            <div>
+                <div class="d-flex justify-content-center align-items-center" style="height: 90%;">
+                    <ul>
+                        <li onclick="HideModal('menu');DrawAllJuegos();ShowModal('mis-partidas-panel')">Mis partidas</li>
+                        <li onclick="HideModal('menu');ShowModal('conf-panel')">Configuración</li>
+                    </ul>
+                </div>
+                <div class="w-100 d-flex justify-content-center align-items-center">
+                    <button onclick="HideModal('menu');"><span>Cerrar</span></button>
+                </div>
             </div>
         </div>
         <div id="conf-panel" class="modal" style="display: none;">
@@ -59,23 +64,25 @@
             </div>
         </div>
         <div id="mis-partidas-panel" class="modal" style="display: none;">
-            <div>
+            <div style="width: 100vw; height: 90vh; max-width: 800px;">
                 <div>
                     <h3>Mis partidas</h3>
                 </div>
-                <table id="mis-partidas">
-                    <thead>
-                        <tr>
-                            <th>Resultado</th>
-                            <th>Nosotros</th>
-                            <th>Ellos</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                    </tbody>
-                </table>
+                <div style="height: 85%;">
+                    <table id="mis-partidas" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>Resultado</th>
+                                <th>Nosotros</th>
+                                <th>Ellos</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+    
+                        </tbody>
+                    </table>
+                </div>
                 <div class="w-100 d-flex justify-content-center align-items-center">
                     <button onclick="HideModal('mis-partidas-panel');"><span>Cerrar</span></button>
                 </div>
