@@ -38,9 +38,9 @@ $(document).ready(function () {
 
     console.log("Funcionando...");
 
-    $(".hambuger-menu-icon").click(function () {
-        $(this).toggleClass('change');
-    });
+    // $(".hambuger-menu-icon").click(function () {
+    //     $(this).toggleClass('change');
+    // });
 });
 
 $(document).on("click", ".tablero", function () {
@@ -198,7 +198,7 @@ function DrawAllJuegos() {
                                 <td>${nro_jugador_ganador == 0 ? "Sin terminar" : "Ganador: "(juego["jugador_" + nro_jugador_ganador + "_puntos"])}</td>
                                 <td style="text-align: center">${juego.jugador_1_puntos}</td>
                                 <td style="text-align: center">${juego.jugador_2_puntos}</td>
-                                <td onclick="GetAndLoadJuego(${juego.id})">Cargar</td>
+                                <td onclick="GetAndLoadJuego(${juego.id}); HideAllModals();">Cargar</td>
                             </tr>`;
                 }
             }
@@ -224,8 +224,8 @@ function LoadLastJuego() {
 function GetAndLoadJuego(juegoId){
     GetJuegoById(juegoId).then(function(juego){
         if(juego){
-            let _juego = IndexedDbJuegoToJuego(juego);
-            DrawGame(_juego);
+            CURRENT_GAME_CONF = IndexedDbJuegoToJuego(juego);
+            DrawGame(CURRENT_GAME_CONF);
         }
     });
 }
@@ -321,4 +321,8 @@ function HideModal(modalId) {
 
     if (modal.is(":visible"))
         modal.fadeOut(150);
+}
+
+function HideAllModals(){
+    $(".modal:visible").fadeOut(150);
 }
